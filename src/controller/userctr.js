@@ -53,6 +53,10 @@ exports.register = async (req, res) => {
 };
 
 
+
+
+
+
 exports.login = async (req,res) => {
   try {
     const {email,password} = req.body;
@@ -96,4 +100,50 @@ exports.login = async (req,res) => {
   } catch (error) {
     
   }
+}
+
+
+
+exports.secret = async (req, res) => {
+  console.log(req.user);
+  res.json({
+      currentUser: req.user,
+      message: "admin successfully entered in the controller"
+  });
+};
+
+
+
+
+exports.updateProfile = async (req,res) => {
+try {
+  const {name,password} = req.body;
+
+  const user = await User.findById(req.body._id);
+
+if (password && password.length < 6) {
+  return res.json ({error : "password must be 6 upper"})
+}
+
+
+
+const update = await User.findByIdAndUpdate (
+  req.user._id,
+
+  {
+    name: name || user.name,
+    password : password || user.password
+    // address : address || user.address,
+     
+  },
+  {new:true}
+)
+
+update.password = undefined;
+update.role = undefined;
+res.json(update)
+
+} catch (error) {
+    console.log(error)
+}
 }
