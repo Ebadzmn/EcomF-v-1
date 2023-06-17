@@ -17,7 +17,7 @@ const {create,update , removed, list, read} = require ("../controller/category.j
 
 
 //product
-const {Pcreate,Plist} = require ("../controller/Product.js")
+const {Pcreate,Plist,Pread , Pphoto, Premove, Pupdate} = require ("../controller/Product.js")
 
 
 
@@ -56,5 +56,10 @@ router.get ("/category/:slug" , requireSignin , isAdmin , read)
 
 router.post("/product", requireSignin, isAdmin, formidable(), Pcreate);
 router.get("/product" ,Plist)
+router.get("/product/:slug" , Pread)
+
+router.get("/product/photo/:productId" , Pphoto)
+router.delete("/product/:productId", requireSignin,isAdmin , Premove)
+router.put("/product/:productId", requireSignin, isAdmin, formidable(), Pupdate)
 
 module.exports = router ; 
