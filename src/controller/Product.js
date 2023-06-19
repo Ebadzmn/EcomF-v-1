@@ -95,6 +95,15 @@ exports.Plist = async (req,res) => {
 
 
 
+
+
+
+
+
+
+
+
+
 exports.Pread = async (req,res) => {
   try {
     const product = await Product.findOne({slug: req.params.slug})
@@ -203,3 +212,85 @@ return res.json ({error : " description is required"})
       return res.status(400).json(error)
       }
     }
+
+
+
+
+
+
+
+
+    exports.filterProduct = async (req,res) => {
+      try {
+        const {checked,radio} = req.body;
+    
+        let args = {};
+        if ( checked.length > 0) args.category = checked;
+        if (radio.length) args.price = {$gte: radio[0], $lte: radio[1]};
+      const product = await Product.find(args);
+      res.json(product);
+        }
+    
+    
+        
+     catch (error) {
+        console.log(error)
+      }
+    };
+
+
+
+  exports.productcount = async (req,res) => {
+    try {
+      const product = await Product.countDocuments();
+      res.json(product);
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+
+  exports.listProductPage = async (req,res) => {
+    try {
+      const perPage =2;
+      const page =  req.params.page ? req.params.page : 1;
+      const skip = (page - 1) * perPage;
+      const product = await Product.find().select("-photo").skip(skip).limit(perPage);
+      res.json(product);
+    } catch (error) {
+      return res.status(400).json(error)
+    }
+  }
+
+
+  
+  exports.productsSearch = async (req, res) => {
+    try {
+        const { keyword } = req.params;
+        const results = await Product.find({
+            $or: [
+                { name: { $regex: keyword, $options: "i" } },
+                { description: { $regex: keyword, $options: "i" } }
+            ],
+        }).select("-photo");
+
+        res.json(results);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+exports.relatedProduct = async (req,res) => {
+  try {
+    const {productId,categoryId} = req.params;
+    const related = await Product.find({ category: categoryId,
+      _id: {$ne: productId},
+    })
+    .select("-photo")
+    .populate("category")
+    .limit(3);
+    res.json(related);
+  } catch (error) {
+    return res.status(400).json(error)
+  }
+}
